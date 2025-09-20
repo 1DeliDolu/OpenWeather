@@ -9,6 +9,9 @@ datasources:
     version: 1
     editable: true
     jsonData:
-      path: '/resources'
+      # Base URL for OpenWeather API. Override via env var in Compose.
+      # Note: backend currently uses a built-in default; this value is kept for provisioning clarity.
+      path: ${OPENWEATHER_BASE_URL}
     secureJsonData:
-      apiKey: 'api-key'
+      # Do NOT commit real keys. Provide via env var.
+      apiKey: ${OPENWEATHER_API_KEY}

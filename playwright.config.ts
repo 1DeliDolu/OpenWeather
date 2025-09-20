@@ -1,6 +1,17 @@
 import type { PluginOptions } from '@grafana/plugin-e2e';
 import { defineConfig, devices } from '@playwright/test';
 import { dirname } from 'node:path';
+import 'dotenv/config';
+// attempt to load environment variables from .env if dotenv is installed
+try {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires, @typescript-eslint/no-unsafe-assignment
+  const dotenv = require('dotenv');
+  if (dotenv && typeof dotenv.config === 'function') {
+    dotenv.config();
+  }
+} catch (e) {
+  // dotenv is optional; ignore if not installed
+}
 
 const pluginE2eAuth = `${dirname(require.resolve('@grafana/plugin-e2e'))}/auth`;
 
@@ -14,6 +25,13 @@ const pluginE2eAuth = `${dirname(require.resolve('@grafana/plugin-e2e'))}/auth`;
  * See https://playwright.dev/docs/test-configuration.
  */
 export default defineConfig<PluginOptions>({
+  // Start or reuse Grafana via Docker Compose before tests
+  webServer: {
+    command: 'npm run build && docker compose -f docker-compose.yml up --build',
+    url: process.env.GRAFANA_URL || 'http://127.0.0.1:3001',
+    reuseExistingServer: true,
+    timeout: 180_000,
+  },
   testDir: './tests',
   /* Run tests in files in parallel */
   fullyParallel: true,
@@ -26,7 +44,8 @@ export default defineConfig<PluginOptions>({
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */
-    baseURL: process.env.GRAFANA_URL || 'http://localhost:3000',
+    // Prefer IPv4 loopback by default to avoid IPv6 ::1 issues on Windows
+    baseURL: process.env.GRAFANA_URL || 'http://127.0.0.1:3001',
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',

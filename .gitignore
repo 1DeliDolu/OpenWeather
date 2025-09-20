@@ -44,3 +44,9 @@ ci/
 .idea
 
 .eslintcache
+
+# Agent
+AGENT.md
+
+# Environment files
+*.env

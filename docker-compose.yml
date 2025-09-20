@@ -22,3 +22,6 @@ services:
       GF_LOG_FILTERS: plugin.openweather-datasource:debug
       GF_LOG_LEVEL: debug
       GF_PATHS_PLUGINS: /var/lib/grafana/plugins
+      # Provisioned datasource variables (picked up in datasources.yml)
+      OPENWEATHER_API_KEY: ${OPENWEATHER_API_KEY}
+      OPENWEATHER_BASE_URL: ${OPENWEATHER_BASE_URL}
