@@ -1,11 +1,11 @@
 package main
 
 import (
-	"os"
+    "os"
 
-	"github.com/grafana/grafana-plugin-sdk-go/backend/datasource"
-	"github.com/grafana/grafana-plugin-sdk-go/backend/log"
-	"github.com/prtg/prtg/pkg/plugin"
+    "github.com/grafana/grafana-plugin-sdk-go/backend/datasource"
+    "github.com/grafana/grafana-plugin-sdk-go/backend/log"
+    "github.com/prtg/prtg/pkg/plugin"
 )
 
 func main() {
@@ -17,8 +17,8 @@ func main() {
 	// from Grafana to create different instances of SampleDatasource (per datasource
 	// ID). When datasource configuration changed Dispose method will be called and
 	// new datasource instance created using NewSampleDatasource factory.
-	if err := datasource.Manage("prtg-prtg-datasource", plugin.NewDatasource, datasource.ManageOpts{}); err != nil {
-		log.DefaultLogger.Error(err.Error())
-		os.Exit(1)
-	}
+    if err := datasource.Manage("openweather-datasource", plugin.NewDatasource, datasource.ManageOpts{}); err != nil {
+        log.DefaultLogger.Error(err.Error())
+        os.Exit(1)
+    }
 }

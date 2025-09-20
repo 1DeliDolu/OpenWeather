@@ -1,15 +1,15 @@
 {
   "$schema": "https://raw.githubusercontent.com/grafana/grafana/main/docs/sources/developers/plugins/plugin.schema.json",
   "type": "datasource",
-  "name": "Prtg",
-  "id": "prtg-prtg-datasource",
+  "name": "OpenWeather",
+  "id": "openweather-datasource",
   "metrics": true,
   "backend": true,
-  "executable": "gpx_prtg",
+  "executable": "openweather",
   "info": {
-    "description": "",
+    "description": "OpenWeather data source for Grafana",
     "author": {
-      "name": "Prtg"
+      "name": "OpenWeather"
     },
     "keywords": ["datasource"],
     "logos": {

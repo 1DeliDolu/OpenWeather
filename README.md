@@ -1,133 +1,109 @@
-# Grafana data source plugin template
+datasources:
 
-This template is a starting point for building a Data Source Plugin for Grafana.
+**OpenWeather Grafana Data Source**
 
-## What are Grafana data source plugins?
+- Fetches OpenWeather REST API data and visualizes it as a time series in Grafana.
+- Provides 5-day/3-hour forecast data with city, metric (temperature, humidity, pressure, wind, clouds, rain), and unit (metric/imperial/standard) selection.
+- Includes secure API key management, health checks, and Docker-based development environment.
 
-Grafana supports a wide range of data sources, including Prometheus, MySQL, and even Datadog. There’s a good chance you can already visualize metrics from the systems you have set up. In some cases, though, you already have an in-house metrics solution that you’d like to add to your Grafana dashboards. Grafana Data Source Plugins enables integrating such solutions with Grafana.
+**Features**
 
-## Getting started
+- Uses the OpenWeather Forecast (5 day / 3 hour) endpoint.
+- Query editor: `city`, `mainParameter` (main/wind/clouds/rain), `subParameter` (e.g., temp, feels_like, pressure, speed, all, 3h), `units`.
+- Output: Single time series Frame with `time` and `value` fields; usable as graph/table in panel.
+- Health check: API key is validated; returns error if missing.
+- Compatible with Grafana >= 10.4, local development with Docker (Grafana 11.x).
 
-### Backend
+**Requirements**
 
-1. Update [Grafana plugin SDK for Go](https://grafana.com/developers/plugin-tools/key-concepts/backend-plugins/grafana-plugin-sdk-for-go) dependency to the latest minor version:
+- Node.js `>=22`
+- Go `>=1.22`
+- Docker (optional, for local Grafana)
+- OpenWeather API key (https://openweathermap.org/api)
 
-   ```bash
-   go get -u github.com/grafana/grafana-plugin-sdk-go
-   go mod tidy
-   ```
+**Setup (Development)**
 
-2. Build backend plugin binaries for Linux, Windows and Darwin:
+- Dependencies: `npm install`
+- Backend build: `mage -v`
+- Frontend watch: `npm run dev`
+- Grafana with Docker: `npm run server` (Grafana at `http://localhost:3001`)
+- Grafana data source setup: Settings > Data sources > This plugin > Enter your OpenWeather API key in the `API Key` field and save.
 
-   ```bash
-   mage -v
-   ```
+**Usage**
 
-3. List all available Mage targets for additional commands:
+- Create a new panel and select this plugin as the data source.
+- Query fields:
+  - `City`: City name (e.g., `Istanbul,tr` or `London,uk`).
+  - `Main Parameter`: `main | wind | clouds | rain`.
+  - `Parameters` (sub-parameter):
+    - `main`: `temp`, `feels_like`, `temp_min`, `temp_max`, `pressure`, `sea_level`, `grnd_level`, `humidity`.
+    - `wind`: `speed`, `deg`, `gust`.
+    - `clouds`: `all`.
+    - `rain`: `3h` (last 3 hours rainfall volume).
+  - `Units`: `metric | imperial | standard`.
+- Visualize values using “Time series” or “Table” in the panel.
 
-   ```bash
-   mage -l
-   ```
+**Provisioning (Optional)**
 
-### Frontend
+- Example for development: `provisioning/datasources/datasources.yml`:
 
-1. Install dependencies
+```
+apiVersion: 1
 
-   ```bash
-   npm install
-   ```
 
-2. Build plugin in development mode and run in watch mode
+  - name: 'openweather'
+    type: 'openweather-datasource'
+    access: proxy
+    isDefault: false
+    jsonData:
+      path: '/resources'
+    secureJsonData:
+      apiKey: '<openweather-api-key>'
+```
 
-   ```bash
-   npm run dev
-   ```
+Note: The plugin ID and Docker configuration use `openweather-datasource` in the project.
 
-3. Build plugin in production mode
+**Architecture**
 
-   ```bash
-   npm run build
-   ```
+- Frontend (TypeScript/React): `src/components/QueryEditor.tsx` and `ConfigEditor.tsx` provide query and settings UI.
+- Backend (Go): `pkg/plugin/datasource.go` handles OpenWeather API calls and returns Grafana DataFrame.
+- Secure settings: `secureJsonData.apiKey` is sent only to the backend.
 
-4. Run the tests (using Jest)
+**Commands**
 
-   ```bash
-   # Runs the tests and watches for changes, requires git init first
-   npm run test
+- Development build: `npm run dev`
+- Production build: `npm run build`
+- Backend build: `mage -v`
+- Lint: `npm run lint` or `npm run lint:fix`
+- E2E test: `npm run e2e`
+- Local Grafana (Docker): `npm run server`
 
-   # Exits after running all the tests
-   npm run test:ci
-   ```
+**Troubleshooting**
 
-5. Spin up a Grafana instance and run the plugin inside it (using Docker)
+- 401/403: API key missing/invalid. Check the `API Key` value in data source settings.
+- 404: Invalid or not found city name. Check the `City` field (e.g., `City,countryCode`).
+- 429: OpenWeather quota exceeded. Reduce requests or upgrade your plan.
+- Empty result: Forecast data window is 5 days/3 hours; try different parameter/city.
 
-   ```bash
-   npm run server
-   ```
+**Deployment and Signing**
 
-6. Run the E2E tests (using Cypress)
+- Grafana plugins must be signed for production: `npx @grafana/sign-plugin`.
+- For signing/marketplace process: https://grafana.com/developers/plugin-tools/publish-a-plugin/sign-a-plugin
 
-   ```bash
-   # Spins up a Grafana instance first that we tests against
-   npm run server
+**License**
 
-   # Starts the tests
-   npm run e2e
-   ```
+- Apache-2.0 (see `LICENSE`).
 
-7. Run the linter
+## Example
 
-   ```bash
-   npm run lint
+## Temperature
 
-   # or
+![Marburg](public/marburg_temp.png)
 
-   npm run lint:fix
-   ```
+## Wind
 
-# Distributing your plugin
+![Marburg](public/marburg_wind.png)
 
-When distributing a Grafana plugin either within the community or privately the plugin must be signed so the Grafana application can verify its authenticity. This can be done with the `@grafana/sign-plugin` package.
+## Cloud
 
-_Note: It's not necessary to sign a plugin during development. The docker development environment that is scaffolded with `@grafana/create-plugin` caters for running the plugin without a signature._
-
-## Initial steps
-
-Before signing a plugin please read the Grafana [plugin publishing and signing criteria](https://grafana.com/legal/plugins/#plugin-publishing-and-signing-criteria) documentation carefully.
-
-`@grafana/create-plugin` has added the necessary commands and workflows to make signing and distributing a plugin via the grafana plugins catalog as straightforward as possible.
-
-Before signing a plugin for the first time please consult the Grafana [plugin signature levels](https://grafana.com/legal/plugins/#what-are-the-different-classifications-of-plugins) documentation to understand the differences between the types of signature level.
-
-1. Create a [Grafana Cloud account](https://grafana.com/signup).
-2. Make sure that the first part of the plugin ID matches the slug of your Grafana Cloud account.
-   - _You can find the plugin ID in the `plugin.json` file inside your plugin directory. For example, if your account slug is `acmecorp`, you need to prefix the plugin ID with `acmecorp-`._
-3. Create a Grafana Cloud API key with the `PluginPublisher` role.
-4. Keep a record of this API key as it will be required for signing a plugin
-
-## Signing a plugin
-
-### Using Github actions release workflow
-
-If the plugin is using the github actions supplied with `@grafana/create-plugin` signing a plugin is included out of the box. The [release workflow](./.github/workflows/release.yml) can prepare everything to make submitting your plugin to Grafana as easy as possible. Before being able to sign the plugin however a secret needs adding to the Github repository.
-
-1. Please navigate to "settings > secrets > actions" within your repo to create secrets.
-2. Click "New repository secret"
-3. Name the secret "GRAFANA_API_KEY"
-4. Paste your Grafana Cloud API key in the Secret field
-5. Click "Add secret"
-
-#### Push a version tag
-
-To trigger the workflow we need to push a version tag to github. This can be achieved with the following steps:
-
-1. Run `npm version <major|minor|patch>`
-2. Run `git push origin main --follow-tags`
-
-## Learn more
-
-Below you can find source code for existing app plugins and other related documentation.
-
-- [Basic data source plugin example](https://github.com/grafana/grafana-plugin-examples/tree/master/examples/datasource-basic#readme)
-- [`plugin.json` documentation](https://grafana.com/developers/plugin-tools/reference/plugin-json)
-- [How to sign a plugin?](https://grafana.com/developers/plugin-tools/publish-a-plugin/sign-a-plugin)
+![Marburg](public/marburg_cloud.png)

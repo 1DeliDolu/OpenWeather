@@ -1,7 +1,7 @@
 services:
   grafana:
     user: root
-    container_name: prtg-prtg-datasource
+    container_name: openweather-datasource
     build:
       context: ./.config
       args:
@@ -14,11 +14,11 @@ services:
       - 3001:3000/tcp
     
     volumes:
-      - ./dist:/var/lib/grafana/plugins/prtg-prtg-datasource
+      - ./dist:/var/lib/grafana/plugins/openweather-datasource
       - ./provisioning:/etc/grafana/provisioning
-      - .:/root/prtg-prtg-datasource
+      - .:/root/openweather-datasource
     environment:
       NODE_ENV: development
-      GF_LOG_FILTERS: plugin.prtg-prtg-datasource:debug
+      GF_LOG_FILTERS: plugin.openweather-datasource:debug
       GF_LOG_LEVEL: debug
       GF_PATHS_PLUGINS: /var/lib/grafana/plugins

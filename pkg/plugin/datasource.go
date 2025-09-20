@@ -1,17 +1,17 @@
 package plugin
 
 import (
-	"context"
-	"encoding/json"
-	"fmt"
-	"io"
-	"net/http"
-	"time"
+    "context"
+    "encoding/json"
+    "fmt"
+    "io"
+    "net/http"
+    "time"
 
-	"github.com/grafana/grafana-plugin-sdk-go/backend"
-	"github.com/grafana/grafana-plugin-sdk-go/backend/instancemgmt"
-	"github.com/grafana/grafana-plugin-sdk-go/data"
-	"github.com/grafana/weather/pkg/models"
+    "github.com/grafana/grafana-plugin-sdk-go/backend"
+    "github.com/grafana/grafana-plugin-sdk-go/backend/instancemgmt"
+    "github.com/grafana/grafana-plugin-sdk-go/data"
+    "github.com/prtg/prtg/pkg/models"
 )
 
 // Make sure Datasource implements required interfaces. This is important to do
